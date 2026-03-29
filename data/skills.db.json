@@ -1,0 +1,51 @@
+[
+  {
+    "content": "Python is a versatile programming language",
+    "type": "DOCUMENT",
+    "entities": [],
+    "relations": [],
+    "confidence": 1,
+    "source": "api",
+    "tags": [
+      "Python"
+    ],
+    "status": "ACTIVE",
+    "version": 1,
+    "id": "5843aaa7-ab33-42c2-89db-1ea505b3abd6",
+    "createdAt": "2026-03-26T13:38:42.004Z",
+    "updatedAt": "2026-03-26T13:38:42.004Z"
+  },
+  {
+    "content": "GPT-4 is OpenAI's latest AI model",
+    "type": "DOCUMENT",
+    "entities": [],
+    "relations": [],
+    "confidence": 1,
+    "source": "api",
+    "tags": [
+      "GPT-4",
+      "AI"
+    ],
+    "status": "ACTIVE",
+    "version": 1,
+    "id": "b536aa1f-8571-4673-be3d-48855b198fc4",
+    "createdAt": "2026-03-26T13:38:42.034Z",
+    "updatedAt": "2026-03-26T13:38:42.034Z"
+  },
+  {
+    "content": "Test entry for 2.0",
+    "type": "DOCUMENT",
+    "entities": [],
+    "relations": [],
+    "confidence": 1,
+    "source": "test",
+    "tags": [
+      "test"
+    ],
+    "status": "ACTIVE",
+    "version": 1,
+    "id": "acd8b98c-a154-4bc0-9b23-d59751244376",
+    "createdAt": "2026-03-26T13:41:45.623Z",
+    "updatedAt": "2026-03-26T13:41:45.623Z"
+  }
+]
