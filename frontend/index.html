@@ -1,0 +1,1038 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Estrella Learning Framework</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-primary: #0d1117;
+      --bg-secondary: #161b22;
+      --bg-tertiary: #21262d;
+      --bg-card: #1c2128;
+      --border-color: #30363d;
+      --text-primary: #e6edf3;
+      --text-secondary: #8b949e;
+      --text-muted: #6e7681;
+      --accent-cyan: #58a6ff;
+      --accent-purple: #a371f7;
+      --accent-green: #3fb950;
+      --accent-orange: #d29922;
+      --accent-red: #f85149;
+      --accent-pink: #db61a2;
+    }
+    body.light-theme {
+      --bg-primary: #ffffff;
+      --bg-secondary: #f6f8fa;
+      --bg-tertiary: #eaeef2;
+      --bg-card: #ffffff;
+      --border-color: #d0d7de;
+      --text-primary: #1f2328;
+      --text-secondary: #656d76;
+      --text-muted: #8c959f;
+      --accent-cyan: #0969da;
+      --accent-purple: #8250df;
+      --accent-green: #1a7f37;
+      --accent-orange: #9a6700;
+      --accent-red: #cf222e;
+      --accent-pink: #bf3989;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif; background: var(--bg-primary); color: var(--text-primary); min-height: 100vh; transition: background 0.3s, color 0.3s; }
+    
+    /* Background pattern */
+    body::before { content: ''; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-image: radial-gradient(circle at 25% 25%, var(--accent-purple) 0%, transparent 50%), radial-gradient(circle at 75% 75%, var(--accent-cyan) 0%, transparent 50%); opacity: 0.05; pointer-events: none; z-index: -1; }
+    
+    .container { max-width: 1200px; margin: 0 auto; padding: 24px; }
+    
+    /* Navbar */
+    .navbar { display: flex; justify-content: space-between; align-items: center; padding: 16px 24px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; margin-bottom: 24px; backdrop-filter: blur(10px); }
+    .navbar-brand { display: flex; align-items: center; gap: 14px; cursor: pointer; }
+    .navbar-logo { width: 42px; height: 42px; background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple)); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; box-shadow: 0 4px 12px rgba(88, 166, 255, 0.3); }
+    .navbar-title { font-size: 18px; font-weight: 600; color: var(--text-primary); }
+    .navbar-subtitle { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+    .navbar-nav { display: flex; gap: 6px; background: var(--bg-tertiary); padding: 4px; border-radius: 12px; }
+    .nav-item { padding: 10px 20px; border-radius: 8px; font-size: 14px; color: var(--text-secondary); cursor: pointer; transition: all 0.2s; border: none; background: transparent; font-family: inherit; font-weight: 500; }
+    .nav-item:hover { color: var(--text-primary); }
+    .nav-item.active { background: var(--bg-card); color: var(--accent-cyan); box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
+    .navbar-actions { display: flex; align-items: center; gap: 16px; }
+    .status-badge { display: flex; align-items: center; gap: 8px; padding: 6px 14px; background: rgba(63, 185, 80, 0.15); border-radius: 20px; border: 1px solid rgba(63, 185, 80, 0.3); }
+    .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent-green); animation: pulse 2s infinite; }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+    
+    /* Sections */
+    .nav-section { display: none; animation: fadeIn 0.3s; }
+    .nav-section.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    
+    /* Stats Grid */
+    .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+    .stat-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; padding: 20px; transition: all 0.3s; position: relative; overflow: hidden; }
+    .stat-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--accent-cyan), var(--accent-purple)); }
+    .stat-card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0,0,0,0.2); }
+    .stat-label { font-size: 13px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+    .stat-value { font-family: 'JetBrains Mono', monospace; font-size: 32px; font-weight: 600; color: var(--text-primary); }
+    .stat-card:nth-child(2)::before { background: linear-gradient(90deg, var(--accent-purple), var(--accent-pink)); }
+    .stat-card:nth-child(3)::before { background: linear-gradient(90deg, var(--accent-green), var(--accent-cyan)); }
+    .stat-card:nth-child(4)::before { background: linear-gradient(90deg, var(--accent-orange), var(--accent-red)); }
+    
+    /* Toolbar */
+    .toolbar { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 24px; padding: 16px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; }
+    .btn { padding: 10px 18px; border: none; border-radius: 10px; font-family: inherit; font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 8px; white-space: nowrap; }
+    .btn-primary { background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple)); color: white; box-shadow: 0 4px 12px rgba(88, 166, 255, 0.3); }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(88, 166, 255, 0.4); }
+    .btn-secondary { background: var(--bg-tertiary); color: var(--text-primary); border: 1px solid var(--border-color); }
+    .btn-secondary:hover { border-color: var(--accent-cyan); color: var(--accent-cyan); }
+    .btn-danger { background: transparent; color: var(--accent-red); border: 1px solid var(--accent-red); }
+    .btn-danger:hover { background: var(--accent-red); color: white; }
+    
+    /* Cards */
+    .card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; margin-bottom: 24px; overflow: hidden; }
+    .card-header { display: flex; justify-content: space-between; align-items: center; padding: 18px 24px; border-bottom: 1px solid var(--border-color); }
+    .card-title { font-size: 15px; font-weight: 600; display: flex; align-items: center; gap: 12px; color: var(--text-primary); }
+    .card-title-icon { width: 36px; height: 36px; background: var(--bg-tertiary); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+    .card-body { padding: 24px; }
+    
+    /* Forms */
+    .form-group { margin-bottom: 18px; }
+    .form-label { display: block; font-size: 13px; color: var(--text-secondary); margin-bottom: 8px; font-weight: 500; }
+    .form-input, .form-select, .form-textarea { width: 100%; padding: 12px 16px; background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: 10px; color: var(--text-primary); font-family: inherit; font-size: 14px; transition: all 0.2s; }
+    .form-input:focus, .form-select:focus, .form-textarea:focus { outline: none; border-color: var(--accent-cyan); box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.15); }
+    .form-textarea { min-height: 100px; resize: vertical; font-family: 'JetBrains Mono', monospace; font-size: 13px; }
+    .btn-group { display: flex; gap: 12px; margin-top: 20px; flex-wrap: wrap; }
+    
+    /* Knowledge Items */
+    .knowledge-list { max-height: 450px; overflow-y: auto; }
+    .knowledge-item { padding: 16px; background: var(--bg-tertiary); border-radius: 12px; margin-bottom: 12px; border: 1px solid var(--border-color); transition: all 0.2s; }
+    .knowledge-item:hover { border-color: var(--accent-purple); transform: translateX(4px); }
+    .knowledge-item:last-child { margin-bottom: 0; }
+    .knowledge-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+    .knowledge-type { font-size: 11px; padding: 4px 10px; background: var(--accent-purple); border-radius: 6px; font-weight: 600; text-transform: uppercase; }
+    .knowledge-id { font-size: 11px; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; }
+    .knowledge-content { font-size: 14px; line-height: 1.6; color: var(--text-secondary); margin-bottom: 12px; word-break: break-word; }
+    .knowledge-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+    .knowledge-tag { font-size: 11px; padding: 4px 10px; background: var(--bg-card); border-radius: 6px; color: var(--text-muted); }
+    .knowledge-actions { display: flex; gap: 8px; }
+    .btn-sm { padding: 6px 12px; font-size: 12px; border-radius: 8px; }
+    .btn-edit { background: transparent; color: var(--accent-orange); border: 1px solid var(--accent-orange); }
+    .btn-edit:hover { background: var(--accent-orange); color: white; }
+    .btn-delete { background: transparent; color: var(--accent-red); border: 1px solid var(--accent-red); }
+    .btn-delete:hover { background: var(--accent-red); color: white; }
+    
+    /* Search Results */
+    .search-results { margin-top: 20px; max-height: 350px; overflow-y: auto; }
+    .result-item { padding: 16px; background: var(--bg-tertiary); border-radius: 12px; margin-bottom: 10px; border-left: 4px solid var(--accent-cyan); }
+    .result-item:last-child { margin-bottom: 0; }
+    .result-content { font-size: 14px; line-height: 1.6; margin-bottom: 10px; }
+    .result-meta { display: flex; gap: 16px; font-size: 12px; color: var(--text-muted); flex-wrap: wrap; }
+    .result-score { color: var(--accent-green); font-family: 'JetBrains Mono', monospace; font-weight: 600; }
+    
+    /* Settings Panel */
+    .settings-panel { padding: 24px; background: var(--bg-tertiary); border-radius: 16px; margin-bottom: 24px; }
+    .settings-title { font-size: 16px; font-weight: 600; margin-bottom: 20px; color: var(--text-primary); display: flex; align-items: center; gap: 10px; }
+    .settings-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+    .setting-item { display: flex; flex-direction: column; gap: 10px; }
+    .setting-label { font-size: 13px; color: var(--text-secondary); font-weight: 500; }
+    .setting-input { padding: 12px 16px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 10px; color: var(--text-primary); font-size: 14px; }
+    .setting-input:focus { outline: none; border-color: var(--accent-cyan); }
+    .setting-btn { padding: 12px 24px; background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple)); color: white; border: none; border-radius: 10px; cursor: pointer; font-size: 14px; font-weight: 500; transition: all 0.2s; }
+    .setting-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(88, 166, 255, 0.3); }
+    .checkbox-wrapper { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+    .checkbox-wrapper input { width: 18px; height: 18px; accent-color: var(--accent-cyan); }
+    .checkbox-label { font-size: 14px; color: var(--text-secondary); }
+    
+    /* Memory specific */
+    .memory-type-badge { font-size: 11px; padding: 4px 10px; border-radius: 6px; font-weight: 600; text-transform: uppercase; }
+    .memory-working { background: rgba(88, 166, 255, 0.2); color: var(--accent-cyan); }
+    .memory-episodic { background: rgba(163, 113, 247, 0.2); color: var(--accent-purple); }
+    .memory-semantic { background: rgba(63, 185, 80, 0.2); color: var(--accent-green); }
+    
+    /* Theme toggle */
+    .theme-toggle { padding: 8px 14px; background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-secondary); cursor: pointer; font-size: 14px; transition: all 0.2s; }
+    .theme-toggle:hover { border-color: var(--accent-cyan); color: var(--accent-cyan); }
+    
+    /* Toast */
+    .toast-container { position: fixed; top: 24px; right: 24px; z-index: 1000; display: flex; flex-direction: column; gap: 12px; }
+    .toast { padding: 16px 20px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.4); display: flex; align-items: center; gap: 12px; animation: slideIn 0.3s; min-width: 300px; backdrop-filter: blur(10px); }
+    @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+    .toast.success { border-left: 4px solid var(--accent-green); }
+    .toast.error { border-left: 4px solid var(--accent-red); }
+    .toast.info { border-left: 4px solid var(--accent-cyan); }
+    
+    /* Loading */
+    .loading { width: 16px; height: 16px; border: 2px solid var(--border-color); border-top-color: var(--accent-cyan); border-radius: 50%; animation: spin 0.6s linear infinite; display: inline-block; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg-secondary); }
+    ::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+    
+    @media (max-width: 768px) {
+      .container { padding: 16px; }
+      .navbar { flex-direction: column; gap: 16px; text-align: center; }
+      .navbar-nav { flex-wrap: wrap; justify-content: center; }
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+      .toolbar { justify-content: center; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Navigation -->
+    <nav class="navbar">
+      <div class="navbar-brand" onclick="switchNav('settings')">
+        <div class="navbar-logo">⚡</div>
+        <div>
+          <div class="navbar-title" id="systemTitle">Estrella Learning Framework</div>
+          <div class="navbar-subtitle" id="systemDesc">企业级知识管理系统</div>
+        </div>
+      </div>
+      <div class="navbar-nav">
+        <button class="nav-item active" data-section="knowledge" onclick="switchNav('knowledge')">📚 知识库</button>
+        <button class="nav-item" data-section="search" onclick="switchNav('search')">🔍 检索</button>
+        <button class="nav-item" data-section="memory" onclick="switchNav('memory')">🧠 记忆</button>
+        <button class="nav-item" data-section="settings" onclick="switchNav('settings')">⚙️ 设置</button>
+      </div>
+      <div class="navbar-actions">
+        <div class="status-badge">
+          <span class="status-dot"></span>
+          <span style="font-size:12px;color:var(--accent-green);">运行中</span>
+        </div>
+        <button class="theme-toggle" onclick="toggleTheme()">🌙</button>
+      </div>
+    </nav>
+
+    <!-- Knowledge Tab -->
+    <div id="section-knowledge" class="nav-section active">
+      <div class="stats-grid">
+        <div class="stat-card"><div class="stat-label">版本</div><div class="stat-value" id="version">-</div></div>
+        <div class="stat-card"><div class="stat-label">运行时间</div><div class="stat-value" id="uptime">-</div></div>
+        <div class="stat-card"><div class="stat-label">知识条目</div><div class="stat-value" id="knowledgeCount">-</div></div>
+        <div class="stat-card"><div class="stat-label">CPU 核心</div><div class="stat-value" id="cpuCores">-</div></div>
+      </div>
+      
+      <div class="toolbar">
+        <button class="btn btn-primary" onclick="importFolder()">📁 批量导入</button>
+        <button class="btn btn-secondary" onclick="uploadFile()">📤 上传</button>
+        <button class="btn btn-secondary" onclick="autoOrganize()">🧹 自动整理</button>
+        <button class="btn btn-secondary" onclick="showTagStats()">🏷️ 标签统计</button>
+        <button class="btn btn-secondary" onclick="backupKnowledge()">💾 备份</button>
+        <button class="btn btn-secondary" onclick="restoreKnowledge()">📥 恢复</button>
+        <button class="btn btn-secondary" onclick="showKnowledgeStats()">📊 统计</button>
+        <button class="btn btn-secondary" onclick="exportKnowledge('json')">📦 导出</button>
+        <button class="btn btn-secondary" onclick="loadKnowledgeList()">🔄 刷新</button>
+      </div>
+      
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title"><div class="card-title-icon">➕</div>添加知识</div>
+        </div>
+        <div class="card-body">
+          <div class="form-group"><label class="form-label">内容</label><textarea class="form-textarea" id="newContent" placeholder="输入知识内容..."></textarea></div>
+          <div class="form-group"><label class="form-label">类型</label><select class="form-select" id="newType"><option value="DOCUMENT">文档</option><option value="EXTRACTION">提取</option><option value="FUSION">融合</option><option value="UPDATE">更新</option></select></div>
+          <div class="form-group"><label class="form-label">标签（逗号分隔）</label><input type="text" class="form-input" id="newTags" placeholder="AI, 机器学习, Python"></div>
+          <div class="btn-group"><button class="btn btn-primary" onclick="addKnowledge()">添加</button><button class="btn btn-secondary" onclick="clearForm()">清空</button></div>
+        </div>
+      </div>
+      
+      <!-- Knowledge List - 只在知识库标签显示 -->
+      <div class="card">
+        <div class="card-header"><div class="card-title"><div class="card-title-icon">📚</div>知识库</div></div>
+        <div class="card-body"><div class="knowledge-list" id="knowledgeList"></div></div>
+      </div>
+    </div>
+
+    <!-- Search Tab -->
+    <div id="section-search" class="nav-section">
+      <div class="card">
+        <div class="card-header"><div class="card-title"><div class="card-title-icon">🔍</div>知识检索</div></div>
+        <div class="card-body">
+          <div class="form-group"><label class="form-label">搜索关键词</label><input type="text" class="form-input" id="searchQuery" placeholder="输入搜索内容..."></div>
+          <div class="btn-group"><button class="btn btn-primary" onclick="searchKnowledge()">搜索</button></div>
+          <div style="margin-top:16px;">
+            <label class="checkbox-wrapper">
+              <input type="checkbox" id="useVectorSearch">
+              <span class="checkbox-label">🔬 启用向量语义搜索</span>
+            </label>
+          </div>
+          <div class="search-results" id="searchResults"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Memory Tab -->
+    <div id="section-memory" class="nav-section">
+      <div class="stats-grid">
+        <div class="stat-card"><div class="stat-label">用户记忆</div><div class="stat-value" id="userMemoryCount">0</div></div>
+        <div class="stat-card"><div class="stat-label">助手记忆</div><div class="stat-value" id="assistantMemoryCount">0</div></div>
+        <div class="stat-card"><div class="stat-label">系统记忆</div><div class="stat-value" id="systemMemoryCount">0</div></div>
+        <div class="stat-card"><div class="stat-label">总计</div><div class="stat-value" id="totalMemoryCount">0</div></div>
+      </div>
+      
+      <div class="toolbar">
+        <button class="btn btn-secondary" id="autoRecordBtn" onclick="toggleAutoRecord()">🔴 监听中</button>
+        <button class="btn btn-primary" onclick="showAddMemoryDialog()">➕ 添加记忆</button>
+        <button class="btn btn-secondary" onclick="recordAction()">📝 记录操作</button>
+        <button class="btn btn-secondary" onclick="extractSemanticMemory()">🔍 提取语义</button>
+        <button class="btn btn-secondary" onclick="recordUserMessage()">👤 记录用户</button>
+        <button class="btn btn-secondary" onclick="recordAssistantMessage()">🤖 记录助手</button>
+        <button class="btn btn-secondary" onclick="recordSystemMessage()">⚙️ 记录系统</button>
+        <button class="btn btn-danger" onclick="clearWorkingMemory()">🗑️ 清空工作记忆</button>
+      </div>
+      
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title"><div class="card-title-icon">🧠</div>记忆搜索</div>
+        </div>
+        <div class="card-body">
+          <div style="display:flex;gap:12px;flex-wrap:wrap;">
+            <input type="text" class="form-input" id="memorySearchQuery" placeholder="搜索记忆..." style="flex:1;min-width:200px;">
+            <select class="form-select" id="memoryTypeFilter" style="width:auto;min-width:140px;" onchange="loadMemoryList()">
+              <option value="">全部类型</option>
+              <option value="working">工作记忆</option>
+              <option value="episodic">对话记忆</option>
+              <option value="semantic">语义记忆</option>
+            </select>
+            <select class="form-select" id="memoryRoleFilter" style="width:auto;min-width:100px;" onchange="loadMemoryList()">
+              <option value="">全部角色</option>
+              <option value="user">👤 用户</option>
+              <option value="assistant">🤖 助手</option>
+              <option value="system">⚙️ 系统</option>
+            </select>
+            <button class="btn btn-primary" onclick="searchMemory()">搜索</button>
+          </div>
+        </div>
+      </div>
+      
+      <!-- 快速记录对话 -->
+      <div class="card" id="conversationPanel" style="border-color: var(--accent-purple);display:none;">
+        <div class="card-header"><div class="card-title"><div class="card-title-icon">💬</div>对话监听面板</div></div>
+        <div class="card-body">
+          <div style="display:flex;gap:12px;flex-wrap:wrap;">
+            <select class="form-select" id="quickRole" style="width:auto;min-width:100px;">
+              <option value="user">👤 用户</option>
+              <option value="assistant">🤖 助手</option>
+              <option value="system">⚙️ 系统</option>
+            </select>
+            <input type="text" class="form-input" id="quickContent" placeholder="输入对话内容..." style="flex:1;min-width:200px;">
+            <button class="btn btn-primary" onclick="quickRecord()">记录</button>
+          </div>
+          <div style="margin-top:12px;font-size:12px;color:var(--text-muted);">
+            💡 开启监听后，在此输入对话内容会自动保存到数据库
+          </div>
+        </div>
+      </div>
+      
+      <div class="card">
+        <div class="card-header"><div class="card-title"><div class="card-title-icon">📋</div>记忆列表</div></div>
+        <div class="card-body"><div class="knowledge-list" id="memoryList"></div></div>
+      </div>
+    </div>
+
+    <!-- Settings Tab -->
+    <div id="section-settings" class="nav-section">
+      <div class="settings-panel">
+        <div class="settings-title">⚙️ 系统设置</div>
+        <div class="settings-grid">
+          <div class="setting-item"><label class="setting-label">系统名称</label><input type="text" class="setting-input" id="settingSystemName" placeholder="输入系统名称..."></div>
+          <div class="setting-item"><label class="setting-label">系统描述</label><input type="text" class="setting-input" id="settingSystemDesc" placeholder="输入系统描述..."></div>
+          <div class="setting-item">
+            <label class="setting-label">向量搜索</label>
+            <label class="checkbox-wrapper">
+              <input type="checkbox" id="settingEnableVector">
+              <span class="checkbox-label">启用向量语义搜索</span>
+            </label>
+          </div>
+          <div class="setting-item"><button class="setting-btn" onclick="saveSettings()">💾 保存设置</button></div>
+        </div>
+      </div>
+      
+      <div class="settings-panel">
+        <div class="settings-title">🎨 外观设置</div>
+        <div class="settings-grid">
+          <div class="setting-item">
+            <label class="setting-label">主题模式</label>
+            <div style="display:flex;gap:12px;">
+              <button class="btn btn-secondary" onclick="setTheme('dark')">🌙 暗色</button>
+              <button class="btn btn-secondary" onclick="setTheme('light')">☀️ 亮色</button>
+            </div>
+          </div>
+        </div>
+      </div>
+  </div>
+
+  <div class="toast-container" id="toastContainer"></div>
+
+  <script>
+    const API_BASE = 'http://localhost:3000';
+    let autoRecordEnabled = localStorage.getItem('autoRecordEnabled') === 'true';
+
+    function showToast(message, type = 'info') {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      const icons = { success: '✓', error: '✕', info: 'ℹ' };
+      toast.className = `toast ${type}`;
+      toast.innerHTML = `<span style="font-size:18px;">${icons[type]}</span><span>${message}</span>`;
+      container.appendChild(toast);
+      setTimeout(() => toast.remove(), 3000);
+    }
+
+    // Auto-record conversation messages
+    async function autoRecordMessage(content, role) {
+      if (!autoRecordEnabled || !content || content.trim().length < 2) return;
+      try {
+        // Prevent duplicate recording - check last recorded message
+        const lastContent = localStorage.getItem('lastRecordedContent');
+        if (lastContent === content.trim().substring(0, 100)) {
+          console.log('[Memory] Duplicate message skipped');
+          return;
+        }
+        
+        await fetch(`${API_BASE}/api/v1/memory`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            content: content.substring(0, 5000),
+            memoryType: 'episodic',
+            role: role
+          })
+        });
+        
+        // Store last recorded content to prevent duplicates
+        localStorage.setItem('lastRecordedContent', content.trim().substring(0, 100));
+        
+        console.log(`[Memory] Auto-recorded: ${role} - ${content.substring(0, 30)}...`);
+        // Show toast notification
+        showToast(`已自动记录: ${role === 'user' ? '用户' : '助手'}消息`, 'success');
+      } catch (e) { console.error('Auto-record failed:', e); }
+    }
+
+    // Smart conversation scanner - looks for chat messages on the page
+    function startSmartConversationScanner() {
+      const seenMessages = new Set();
+      
+      const scanInterval = setInterval(() => {
+        if (!autoRecordEnabled) return;
+        
+        // Look for common chat message patterns
+        // This targets OpenClaw's webchat interface
+        const messageSelectors = [
+          // OpenClaw message patterns
+          '.message-content',
+          '.message-bubble',
+          '[data-message]',
+          '.chat-message',
+          '.msg-content',
+          // Generic patterns
+          '.message:not(.system)',
+          'div[class*="message"]',
+          'div[class*="bubble"]'
+        ];
+        
+        for (const selector of messageSelectors) {
+          const messages = document.querySelectorAll(selector);
+          messages.forEach((msg, idx) => {
+            const text = msg.textContent?.trim();
+            if (!text || text.length < 3 || text.length > 10000) return;
+            
+            // Skip if already seen
+            const msgKey = text.substring(0, 50);
+            if (seenMessages.has(msgKey)) return;
+            
+            // Determine if user or assistant message
+            let role = 'user';
+            const parent = msg.closest('.message, .chat-message, [data-role]');
+            if (parent) {
+              const dataRole = parent.getAttribute('data-role') || parent.className;
+              if (dataRole?.includes('assistant') || dataRole?.includes('bot') || dataRole?.includes('ai')) {
+                role = 'assistant';
+              }
+            }
+            
+            // Heuristic: shorter messages that look like user input
+            if (text.length < 200 && !msg.querySelector('a, button')) {
+              // Likely user message
+            } else if (text.length > 100) {
+              // Likely assistant message
+              role = 'assistant';
+            }
+            
+            seenMessages.add(msgKey);
+            autoRecordMessage(text, role);
+          });
+        }
+        
+        // Also check for any text selection changes (user highlighting text)
+      }, 3000); // Scan every 3 seconds
+      
+      return () => clearInterval(scanInterval);
+    }
+    
+    // Listen for OpenClaw conversation messages
+    // This captures real conversation content from OpenClaw
+    if (window.parent !== window) {
+      // We're in an iframe, listen for messages from parent
+      window.addEventListener('message', async (event) => {
+        if (!autoRecordEnabled) return;
+        const data = event.data;
+        
+        // Handle different message types from OpenClaw
+        if (data && data.type === 'assistant-response') {
+          // Assistant message
+          await autoRecordMessage(data.content || data.message, 'assistant');
+          console.log('[Memory] Recorded assistant message');
+        } else if (data && data.type === 'user-message') {
+          // User message
+          await autoRecordMessage(data.content || data.message, 'user');
+          console.log('[Memory] Recorded user message');
+        } else if (data && data.content && data.role) {
+          // Generic message format
+          await autoRecordMessage(data.content, data.role);
+        }
+      });
+      // Global function for easy recording from browser console
+    // Usage in console: record('your message here', 'user')
+    window.record = async function(content, role) {
+      if (!content) {
+        console.log('Usage: record("message content", "user" | "assistant" | "system")');
+        return;
+      }
+      role = role || 'user';
+      try {
+        await fetch(`${API_BASE}/api/v1/memory`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ content, memoryType: 'episodic', role })
+        });
+        console.log(`[Memory] Recorded: ${role} - ${content.substring(0, 30)}...`);
+        showToast(`已记录: ${role}`, 'success');
+      } catch (e) { console.error('Record failed:', e); }
+    };
+    
+    // Alias for convenience
+    window.r = window.record;
+    
+    console.log('%c🧠 Memory API Ready', 'font-size: 16px; color: #4CAF50;');
+    console.log('Usage: record("message", "user") or r("message", "assistant")');
+    }
+
+    // Poll for conversation messages if in OpenClaw context
+    let lastConversationLength = 0;
+    function startConversationPolling() {
+      // Check for OpenClaw conversation store periodically
+      setInterval(async () => {
+        if (!autoRecordEnabled) return;
+        
+        // Try to get messages from OpenClaw's conversation store
+        // This works if OpenClaw exposes conversation data
+        try {
+          if (window.opener?.conversation?.messages) {
+            const msgs = window.opener.conversation.messages;
+            if (msgs.length > lastConversationLength) {
+              const newMsgs = msgs.slice(lastConversationLength);
+              for (const msg of newMsgs) {
+                const role = msg.role === 'user' ? 'user' : 'assistant';
+                await autoRecordMessage(msg.content, role);
+              }
+              lastConversationLength = msgs.length;
+            }
+          }
+        } catch (e) { /* ignore cross-origin errors */ }
+      }, 5000); // Check every 5 seconds
+    }
+    
+    // Start polling if we might be in OpenClaw context
+    if (autoRecordEnabled) {
+      startConversationPolling();
+    }
+
+    function toggleAutoRecord() {
+      autoRecordEnabled = !autoRecordEnabled;
+      localStorage.setItem('autoRecordEnabled', autoRecordEnabled);
+      const btn = document.getElementById('autoRecordBtn');
+      if (btn) {
+        btn.innerHTML = autoRecordEnabled ? '⏹️ 停止监听' : '🔴 监听中';
+        btn.className = autoRecordEnabled ? 'btn btn-success' : 'btn btn-secondary';
+      }
+      showToast(autoRecordEnabled ? '自动监听已开启 - 正在扫描页面消息' : '自动监听已关闭', 'info');
+      if (autoRecordEnabled) {
+        startConversationPolling();
+        startSmartConversationScanner();
+      }
+    }
+
+    // Quick record conversation from input
+    async function quickRecord() {
+      const role = document.getElementById('quickRole').value;
+      const content = document.getElementById('quickContent').value.trim();
+      if (!content) { showToast('请输入内容', 'error'); return; }
+      
+      try {
+        const res = await fetch(`${API_BASE}/api/v1/memory`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ content, memoryType: 'episodic', role })
+        });
+        const data = await res.json();
+        if (data.success) {
+          document.getElementById('quickContent').value = '';
+          showToast('已记录: ' + role, 'success');
+          loadMemoryStats();
+          loadMemoryList();
+        } else {
+          showToast('记录失败: ' + data.error?.message, 'error');
+        }
+      } catch (e) { showToast('记录失败: ' + e.message, 'error'); }
+    }
+
+    // Press Enter to quick record
+    document.addEventListener('DOMContentLoaded', function() {
+      const quickInput = document.getElementById('quickContent');
+      if (quickInput) {
+        quickInput.addEventListener('keypress', function(e) {
+          if (e.key === 'Enter') quickRecord();
+        });
+      }
+    });
+
+    // Initialize auto-record button state
+    function initAutoRecord() {
+      const btn = document.getElementById('autoRecordBtn');
+      const panel = document.getElementById('conversationPanel');
+      if (autoRecordEnabled && btn) {
+        btn.innerHTML = '⏹️ 停止监听';
+        btn.className = 'btn btn-success';
+        if (panel) panel.style.display = 'block';
+      }
+      // Setup auto-record on type
+      const input = document.getElementById('quickContent');
+      if (input) {
+        input.addEventListener('keypress', function(e) {
+          if (e.key === 'Enter' && autoRecordEnabled) {
+            quickRecord();
+          }
+        });
+      }
+    }
+
+    async function loadHealth() {
+      try {
+        const res = await fetch(`${API_BASE}/health`);
+        const data = await res.json();
+        document.getElementById('version').textContent = data.version || '1.0.0';
+        const uptime = Math.floor((data.uptime || 0) / 1000);
+        const hours = Math.floor(uptime / 3600);
+        const minutes = Math.floor((uptime % 3600) / 60);
+        document.getElementById('uptime').textContent = `${hours}h ${minutes}m`;
+        document.getElementById('cpuCores').textContent = data.cpu?.cores || '-';
+      } catch (e) { console.error('Health check failed:', e); }
+    }
+
+    function switchNav(section) {
+      document.querySelectorAll('.nav-item').forEach(btn => btn.classList.toggle('active', btn.dataset.section === section));
+      document.querySelectorAll('.nav-section').forEach(sec => sec.classList.toggle('active', sec.id === 'section-' + section));
+      localStorage.setItem('activeTab', section);
+      if (section === 'memory') {
+        loadMemoryStats();
+        loadMemoryList();  // 加载记忆列表
+      }
+    }
+    
+    // 记忆列表自动刷新 (每5秒)
+    let memoryRefreshInterval = null;
+    function startMemoryAutoRefresh() {
+      if (memoryRefreshInterval) clearInterval(memoryRefreshInterval);
+      memoryRefreshInterval = setInterval(() => {
+        if (document.getElementById('section-memory')?.classList.contains('active')) {
+          loadMemoryList();
+          loadMemoryStats();
+        }
+      }, 5000);
+    }
+    function stopMemoryAutoRefresh() {
+      if (memoryRefreshInterval) clearInterval(memoryRefreshInterval);
+    }
+    
+    // 页面加载时启动自动刷新
+    window.addEventListener('DOMContentLoaded', startMemoryAutoRefresh);
+    window.addEventListener('beforeunload', stopMemoryAutoRefresh);
+
+    function saveSettings() {
+      const systemName = document.getElementById('settingSystemName').value.trim();
+      const systemDesc = document.getElementById('settingSystemDesc').value.trim();
+      const enableVector = document.getElementById('settingEnableVector').checked;
+      if (systemName) { localStorage.setItem('systemName', systemName); document.getElementById('systemTitle').textContent = systemName; }
+      if (systemDesc) { localStorage.setItem('systemDesc', systemDesc); document.getElementById('systemDesc').textContent = systemDesc; }
+      localStorage.setItem('enableVector', enableVector ? 'true' : 'false');
+      document.getElementById('useVectorSearch').checked = enableVector;
+      showToast('设置已保存！', 'success');
+    }
+
+    function loadSettings() {
+      const systemName = localStorage.getItem('systemName') || 'Estrella Learning Framework';
+      const systemDesc = localStorage.getItem('systemDesc') || '企业级知识管理系统';
+      const enableVector = localStorage.getItem('enableVector') === 'true';
+      const activeTab = localStorage.getItem('activeTab') || 'knowledge';
+      document.getElementById('systemTitle').textContent = systemName;
+      document.getElementById('systemDesc').textContent = systemDesc;
+      document.getElementById('settingSystemName').value = systemName;
+      document.getElementById('settingSystemDesc').value = systemDesc;
+      document.getElementById('settingEnableVector').checked = enableVector;
+      document.getElementById('useVectorSearch').checked = enableVector;
+      setTimeout(() => switchNav(activeTab), 100);
+    }
+
+    function toggleTheme() {
+      document.body.classList.toggle('light-theme');
+      const isLight = document.body.classList.contains('light-theme');
+      localStorage.setItem('theme', isLight ? 'light' : 'dark');
+      document.querySelector('.theme-toggle').textContent = isLight ? '☀️' : '🌙';
+    }
+
+    function setTheme(theme) {
+      document.body.classList.toggle('light-theme', theme === 'light');
+      localStorage.setItem('theme', theme);
+      document.querySelector('.theme-toggle').textContent = theme === 'light' ? '☀️' : '🌙';
+    }
+
+    // ========== Knowledge API ==========
+    async function searchKnowledge() {
+      const query = document.getElementById('searchQuery').value.trim();
+      if (!query) { showToast('请输入搜索关键词', 'error'); return; }
+      const useVector = document.getElementById('useVectorSearch').checked;
+      const btn = event.target;
+      btn.innerHTML = '<span class="loading"></span> 搜索中...';
+      btn.disabled = true;
+      try {
+        const url = `${API_BASE}/api/v1/knowledge/search?query=${encodeURIComponent(query)}&useVector=${useVector}`;
+        const res = await fetch(url);
+        const data = await res.json();
+        if (data.success && data.data.count > 0) {
+          const resultsHtml = data.data.results.map(r => `<div class="result-item"><div class="result-content">${r.content}</div><div class="result-meta"><span>类型: ${r.type || 'DOCUMENT'}</span><span>标签: ${r.tags?.join(', ') || '-'}</span><span class="result-score">得分: ${(r.score || 0).toFixed(2)}</span></div></div>`).join('');
+          document.getElementById('searchResults').innerHTML = resultsHtml;
+          showToast(`找到 ${data.data.count} 条结果`, 'success');
+        } else { document.getElementById('searchResults').innerHTML = '<div class="result-item">未找到结果</div>'; }
+      } catch (e) { showToast('搜索失败: ' + e.message, 'error'); } finally { btn.innerHTML = '搜索'; btn.disabled = false; }
+    }
+
+    async function addKnowledge() {
+      const content = document.getElementById('newContent').value.trim();
+      if (!content) { showToast('请输入内容', 'error'); return; }
+      const type = document.getElementById('newType').value;
+      const tags = document.getElementById('newTags').value.split(',').map(t => t.trim()).filter(t => t);
+      const btn = event.target;
+      btn.innerHTML = '<span class="loading"></span> 添加中...';
+      btn.disabled = true;
+      try {
+        const res = await fetch(`${API_BASE}/api/v1/knowledge/entries`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ content, type, entities: [], relations: [], confidence: 0.9, source: 'webui', tags, status: 'ACTIVE' }) });
+        const data = await res.json();
+        if (data.success) { showToast('知识添加成功！', 'success'); clearForm(); loadKnowledgeList(); } else { showToast('添加失败: ' + data.error?.message, 'error'); }
+      } catch (e) { showToast('添加失败: ' + e.message, 'error'); } finally { btn.innerHTML = '添加'; btn.disabled = false; }
+    }
+
+    function clearForm() { document.getElementById('newContent').value = ''; document.getElementById('newTags').value = ''; }
+
+    async function loadKnowledgeList() {
+      try {
+        const countRes = await fetch(`${API_BASE}/api/v1/knowledge/count`);
+        const countData = await countRes.json();
+        document.getElementById('knowledgeCount').textContent = countData.data?.count || '0';
+        const listRes = await fetch(`${API_BASE}/api/v1/knowledge?limit=100`);
+        const listData = await listRes.json();
+        if (listData.success && listData.data.entries && listData.data.entries.length > 0) { displayKnowledgeList(listData.data.entries); return; }
+        document.getElementById('knowledgeList').innerHTML = '<div style="text-align:center;color:var(--text-muted);padding:40px;">暂无知识条目</div>';
+      } catch (e) { console.error('Failed to load:', e); }
+    }
+
+    function displayKnowledgeList(results) {
+      if (!results || results.length === 0) { document.getElementById('knowledgeList').innerHTML = '<div style="text-align:center;color:var(--text-muted);padding:40px;">暂无知识条目</div>'; return; }
+      const listHtml = results.map(r => {
+        let tags = r.tags; if (typeof tags === 'string') tags = tags ? tags.split(',').map(t => t.trim()) : []; else if (!Array.isArray(tags)) tags = [];
+        const displayContent = r.content && r.content.length > 200 ? r.content.substring(0, 200) + '...' : r.content;
+        const safeContent = (r.content || '').replace(/'/g, "&#39;").replace(/"/g, "&quot;");
+        return `<div class="knowledge-item"><div class="knowledge-header"><span class="knowledge-type">${r.type || 'DOCUMENT'}</span><span class="knowledge-id">${r.id?.substring(0, 8) || '-'}...</span></div><div class="knowledge-content">${displayContent}</div><div class="knowledge-tags">${tags.map(t => `<span class="knowledge-tag">${t}</span>`).join('')}</div><div class="knowledge-actions"><button class="btn btn-sm btn-edit" data-id="${r.id}" data-content='${safeContent}' data-tags='${JSON.stringify(tags).replace(/'/g, "&#39;")}'>✏️ 编辑</button><button class="btn btn-sm btn-delete" onclick="deleteKnowledge('${r.id}')">🗑️ 删除</button></div></div>`;
+      }).join('');
+      document.getElementById('knowledgeList').innerHTML = listHtml;
+      document.querySelectorAll('.btn-edit').forEach(btn => { btn.onclick = function() { const id = this.dataset.id; const content = this.dataset.content.replace(/&#39;/g, "'").replace(/&quot;/g, '"'); const tags = JSON.parse(this.dataset.tags.replace(/&#39;/g, "'")); editKnowledge(id, content, tags); }; });
+    }
+
+    async function deleteKnowledge(id) { if (!confirm('确定要删除这条知识吗？')) return; try { const res = await fetch(`${API_BASE}/api/v1/knowledge/${id}`, { method: 'DELETE' }); const data = await res.json(); if (data.success) { showToast('删除成功', 'success'); loadKnowledgeList(); } else { showToast('删除失败: ' + data.error?.message, 'error'); } } catch (e) { showToast('删除失败: ' + e.message, 'error'); } }
+
+    async function editKnowledge(id, currentContent, currentTags) {
+      const newContent = prompt('编辑知识内容：', currentContent);
+      if (newContent === null || !newContent.trim()) return;
+      const newTags = prompt('编辑标签（逗号分隔）：', Array.isArray(currentTags) ? currentTags.join(', ') : '');
+      if (newTags === null) return;
+      const tags = newTags.split(',').map(t => t.trim()).filter(t => t);
+      try { const res = await fetch(`${API_BASE}/api/v1/knowledge/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ content: newContent, tags }) }); const data = await res.json(); if (data.success) { showToast('更新成功', 'success'); loadKnowledgeList(); } else { showToast('更新失败: ' + data.error?.message, 'error'); } } catch (e) { showToast('更新失败: ' + e.message, 'error'); }
+    }
+
+    async function importFolder() { const folderPath = prompt('输入文件夹路径：'); if (!folderPath) return; const source = prompt('输入来源标签（可选）：', 'folder-import') || 'folder-import'; const btn = event.target; btn.innerHTML = '<span class="loading"></span> 导入中...'; btn.disabled = true; try { const res = await fetch(`${API_BASE}/api/v1/knowledge/import-folder`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ folderPath: folderPath.trim(), source: source.trim() }) }); const data = await res.json(); if (data.success) { showToast(`导入成功：${data.data.imported} 个文件`, 'success'); loadKnowledgeList(); } else { showToast('导入失败: ' + data.error?.message, 'error'); } } catch (e) { showToast('导入失败: ' + e.message, 'error'); } finally { btn.innerHTML = '📁 批量导入'; btn.disabled = false; } }
+
+    async function backupKnowledge() { if (!confirm('确定要备份当前知识库吗？')) return; try { showToast('正在备份...', 'info'); const res = await fetch(`${API_BASE}/api/v1/knowledge/backup`, { method: 'POST' }); const data = await res.json(); if (data.success) { showToast(`备份成功：${data.data.filePath}`, 'success'); } else { showToast('备份失败: ' + data.error?.message, 'error'); } } catch (e) { showToast('备份失败: ' + e.message, 'error'); } }
+
+    async function restoreKnowledge() { const filePath = prompt('输入备份文件路径：'); if (!filePath) return; if (!confirm('确定要从备份文件恢复吗？')) return; try { showToast('正在恢复...', 'info'); const res = await fetch(`${API_BASE}/api/v1/knowledge/restore`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ filePath: filePath.trim() }) }); const data = await res.json(); if (data.success) { showToast(`恢复成功：${data.data.imported} 条`, 'success'); loadKnowledgeList(); } else { showToast('恢复失败: ' + data.error?.message, 'error'); } } catch (e) { showToast('恢复失败: ' + e.message, 'error'); } }
+
+    async function uploadFile() { const content = prompt('输入文件内容（文本或Markdown）：'); if (!content) return; const source = prompt('输入来源标签（可选）：', 'file-upload') || 'file-upload'; try { const res = await fetch(`${API_BASE}/api/v1/knowledge/upload`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ content: content.trim(), fileName: 'document.txt', source: source.trim() }) }); const data = await res.json(); if (data.success) { showToast('上传成功！', 'success'); loadKnowledgeList(); } else { showToast('上传失败: ' + data.error?.message, 'error'); } } catch (e) { showToast('上传失败: ' + e.message, 'error'); } }
+
+    async function showKnowledgeStats() { try { const res = await fetch(`${API_BASE}/api/v1/knowledge/stats`); const data = await res.json(); if (data.success) { const stats = data.data; showToast(`知识共 ${stats.total} 条，平均长度 ${Math.round(stats.avgContentLength)} 字符`, 'info'); } } catch (e) { showToast('获取统计失败: ' + e.message, 'error'); } }
+
+    async function exportKnowledge(format) { try { const url = `${API_BASE}/api/v1/knowledge/export?format=${format}`; const res = await fetch(url); const blob = await res.blob(); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `knowledge-export-${Date.now()}.${format === 'markdown' ? 'md' : 'json'}`; a.click(); showToast('导出成功！', 'success'); } catch (e) { showToast('导出失败: ' + e.message, 'error'); } }
+
+    // ========== Memory API (Database-backed) ==========
+    function showAddMemoryDialog() {
+      const type = prompt('选择记忆类型 (working/episodic/semantic):', 'working');
+      if (!type || !['working', 'episodic', 'semantic'].includes(type)) { showToast('无效的记忆类型', 'error'); return; }
+      const content = prompt('输入记忆内容：');
+      if (!content || !content.trim()) return;
+      
+      let keywords = [];
+      if (type === 'semantic') {
+        const kw = prompt('输入关键词（逗号分隔，可选）：', '');
+        if (kw) keywords = kw.split(',').map(k => k.trim()).filter(k => k);
+      }
+      
+      addMemory(content, type, keywords);
+    }
+
+    async function addMemory(content, memoryType, keywords = []) {
+      try {
+        const res = await fetch(`${API_BASE}/api/v1/memory`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ content, memoryType, keywords })
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast('记忆已添加到数据库！', 'success');
+          loadMemoryStats();
+          loadMemoryList();
+        } else {
+          showToast('添加失败: ' + data.error?.message, 'error');
+        }
+      } catch (e) { showToast('添加失败: ' + e.message, 'error'); }
+    }
+
+    async function recordAction() {
+      const action = prompt('记录操作（如：添加知识、搜索、删除等）：');
+      if (!action || !action.trim()) return;
+      await addMemory(action, 'episodic', ['操作记录']);
+    }
+
+    async function extractSemanticMemory() {
+      const content = prompt('输入要提取语义的内容：');
+      if (!content || !content.trim()) return;
+      const keywords = prompt('提取关键词（逗号分隔）：', '重要,AI');
+      const kw = keywords.split(',').map(k => k.trim()).filter(k => k);
+      await addMemory(content, 'semantic', kw);
+    }
+
+    async function clearWorkingMemory() {
+      if (!confirm('确定清空所有工作记忆吗？')) return;
+      try {
+        const res = await fetch(`${API_BASE}/api/v1/memory?type=working`, { method: 'DELETE' });
+        const data = await res.json();
+        if (data.success) {
+          showToast('工作记忆已清空', 'success');
+          loadMemoryStats();
+          loadMemoryList();
+        } else { showToast('清空失败: ' + data.error?.message, 'error'); }
+      } catch (e) { showToast('清空失败: ' + e.message, 'error'); }
+    }
+
+    async function searchMemory() {
+      const query = document.getElementById('memorySearchQuery').value.trim();
+      const type = document.getElementById('memoryTypeFilter').value;
+      const role = document.getElementById('memoryRoleFilter').value;
+      try {
+        const params = new URLSearchParams();
+        if (query) params.append('q', query);
+        if (type) params.append('type', type);
+        if (role) params.append('role', role);
+        const url = `${API_BASE}/api/v1/memory?${params.toString()}`;
+        const res = await fetch(url);
+        const data = await res.json();
+        if (data.success) { displayMemoryList(data.data.items || []); showToast(`找到 ${data.data.total || 0} 条记忆`, 'success'); }
+      } catch (e) { showToast('搜索失败: ' + e.message, 'error'); }
+    }
+
+    async function loadMemoryList() {
+      const type = document.getElementById('memoryTypeFilter').value;
+      const role = document.getElementById('memoryRoleFilter').value;
+      try {
+        const params = new URLSearchParams();
+        if (type) params.append('type', type);
+        if (role) params.append('role', role);
+        params.append('pageSize', '50');
+        const url = `${API_BASE}/api/v1/memory?${params.toString()}`;
+        const res = await fetch(url);
+        const data = await res.json();
+        if (data.success) { displayMemoryList(data.data.items || []); }
+      } catch (e) { console.error('Failed to load memory list:', e); }
+    }
+
+    async function deleteMemory(id) {
+      if (!confirm('确定删除这条记忆吗？')) return;
+      try {
+        const res = await fetch(`${API_BASE}/api/v1/memory/${id}`, { method: 'DELETE' });
+        const data = await res.json();
+        if (data.success) {
+          showToast('记忆已删除', 'success');
+          loadMemoryStats();
+          loadMemoryList();
+        } else { showToast('删除失败: ' + data.error?.message, 'error'); }
+      } catch (e) { showToast('删除失败: ' + e.message, 'error'); }
+    }
+
+    // ========== Auto-organize Knowledge ==========
+    async function autoOrganize() {
+      const mode = prompt('选择整理模式：\n1. all - 全部\n2. tag - 自动标签\n3. dedup - 去重\n4. cluster - 聚类\n\n输入模式名称（默认 all）:', 'all');
+      if (!mode) return;
+      const btn = event.target;
+      btn.innerHTML = '<span class="loading"></span> 整理中...';
+      btn.disabled = true;
+      try {
+        const res = await fetch(`${API_BASE}/api/v1/knowledge/auto-organize?mode=${mode}`, { method: 'POST' });
+        const data = await res.json();
+        if (data.success) {
+          showToast(data.data.message || '整理完成', 'success');
+          loadKnowledgeList();
+        } else {
+          showToast('整理失败: ' + data.error?.message, 'error');
+        }
+      } catch (e) { showToast('整理失败: ' + e.message, 'error'); } finally {
+        btn.innerHTML = '🧹 自动整理';
+        btn.disabled = false;
+      }
+    }
+
+    async function showTagStats() {
+      try {
+        const res = await fetch(`${API_BASE}/api/v1/knowledge/tag-stats`);
+        const data = await res.json();
+        if (data.success) {
+          const tags = data.data.tags || [];
+          if (tags.length === 0) {
+            showToast('暂无标签', 'info');
+            return;
+          }
+          const statsText = tags.slice(0, 10).map(t => `${t.tag}: ${t.count}`).join('\n');
+          showToast(`标签统计（前10）：\n${statsText}`, 'info');
+        }
+      } catch (e) { showToast('获取标签统计失败: ' + e.message, 'error'); }
+    }
+
+    // ========== Memory with Roles ==========
+    async function loadMemoryStats() {
+      try {
+        // Count by role
+        const roles = ['user', 'assistant', 'system'];
+        const roleCounts = {};
+        for (const role of roles) {
+          const res = await fetch(`${API_BASE}/api/v1/memory?role=${role}&pageSize=1`);
+          const data = await res.json();
+          roleCounts[role] = data.success ? data.data.total : 0;
+        }
+        document.getElementById('userMemoryCount').textContent = roleCounts.user;
+        document.getElementById('assistantMemoryCount').textContent = roleCounts.assistant;
+        document.getElementById('systemMemoryCount').textContent = roleCounts.system;
+        document.getElementById('totalMemoryCount').textContent = roleCounts.user + roleCounts.assistant + roleCounts.system;
+      } catch (e) { console.error('Failed to load memory stats:', e); }
+    }
+
+    async function recordUserMessage() {
+      // Try to get selected text from page first
+      const selection = window.getSelection()?.toString()?.trim();
+      let content = '';
+      
+      if (selection && selection.length > 0) {
+        // Use selected text
+        content = selection;
+        if (confirm(`是否记录以下内容为用户消息？\n\n"${content.substring(0, 100)}${content.length > 100 ? '...' : ''}"`)) {
+          await addMemory(content, 'episodic', [], 'user');
+        }
+      } else {
+        // Fall back to prompt
+        content = prompt('输入用户消息：');
+        if (!content || !content.trim()) return;
+        await addMemory(content, 'episodic', [], 'user');
+      }
+    }
+
+    async function recordAssistantMessage() {
+      // Try to get selected text from page first
+      const selection = window.getSelection()?.toString()?.trim();
+      let content = '';
+      
+      if (selection && selection.length > 0) {
+        // Use selected text
+        content = selection;
+        if (confirm(`是否记录以下内容为助手回复？\n\n"${content.substring(0, 100)}${content.length > 100 ? '...' : ''}"`)) {
+          await addMemory(content, 'episodic', [], 'assistant');
+        }
+      } else {
+        // Fall back to prompt
+        content = prompt('输入助手回复：');
+        if (!content || !content.trim()) return;
+        await addMemory(content, 'episodic', [], 'assistant');
+      }
+    }
+
+    async function recordSystemMessage() {
+      const content = prompt('输入系统消息：');
+      if (!content || !content.trim()) return;
+      await addMemory(content, 'semantic', [], 'system');
+    }
+
+    async function addMemory(content, memoryType, keywords = [], role = null) {
+      try {
+        const res = await fetch(`${API_BASE}/api/v1/memory`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ content, memoryType, keywords, role })
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast('记忆已添加！', 'success');
+          loadMemoryStats();
+          loadMemoryList();
+        } else {
+          showToast('添加失败: ' + data.error?.message, 'error');
+        }
+      } catch (e) { showToast('添加失败: ' + e.message, 'error'); }
+    }
+
+    // Update displayMemoryList to show roles
+    function displayMemoryList(memories) {
+      if (!memories || memories.length === 0) { document.getElementById('memoryList').innerHTML = '<div style="text-align:center;color:var(--text-muted);padding:40px;">暂无记忆</div>'; return; }
+      const typeLabels = { working: '工作', episodic: '对话', semantic: '语义' };
+      const typeClasses = { working: 'memory-working', episodic: 'memory-episodic', semantic: 'memory-semantic' };
+      const roleLabels = { user: '👤 用户', assistant: '🤖 助手', system: '⚙️ 系统' };
+      const roleClasses = { user: 'memory-working', assistant: 'memory-episodic', system: 'memory-semantic' };
+      const listHtml = memories.map(m => {
+        const time = new Date(m.createdAt).toLocaleString('zh-CN');
+        const keywords = m.keywords ? m.keywords.map(k => `<span class="knowledge-tag">${k}</span>`).join('') : '';
+        const roleBadge = m.role ? `<span class="memory-type-badge ${roleClasses[m.role]}" style="margin-left:8px;">${roleLabels[m.role]}</span>` : '';
+        return `<div class="knowledge-item"><div class="knowledge-header"><span class="memory-type-badge ${typeClasses[m.memoryType]}">${typeLabels[m.memoryType]}记忆</span>${roleBadge}<span style="font-size:11px;color:var(--text-muted);margin-left:auto;">${time}</span></div><div class="knowledge-content">${m.content}</div>${keywords ? `<div class="knowledge-tags">${keywords}</div>` : ''}<div class="knowledge-actions"><button class="btn btn-sm btn-delete" onclick="deleteMemory('${m.id}')">🗑️ 删除</button></div></div>`;
+      }).join('');
+      document.getElementById('memoryList').innerHTML = listHtml;
+    }
+
+    // Initialize
+    loadSettings();
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'light') { document.body.classList.add('light-theme'); document.querySelector('.theme-toggle').textContent = '☀️'; }
+    loadHealth();
+    loadKnowledgeList();
+    loadMemoryStats();
+    loadMemoryList();
+    document.getElementById('searchQuery')?.addEventListener('keypress', e => { if (e.key === 'Enter') searchKnowledge(); });
+    document.getElementById('memorySearchQuery')?.addEventListener('keypress', e => { if (e.key === 'Enter') searchMemory(); });
+  </script>
+</body>
+</html>

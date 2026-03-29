@@ -1,0 +1,54 @@
+{
+  "name": "openclaw-skills",
+  "version": "2.0.0",
+  "description": "OpenClaw Platform Skills Module - Production Grade AI Agent Skills System",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc --noEmitOnError false",
+    "dev": "ts-node-dev -r tsconfig-paths/register --respawn src/index.ts",
+    "start": "npx ts-node --transpile-only -r tsconfig-paths/register src/index.ts"
+  },
+  "keywords": [
+    "openclaw",
+    "skills",
+    "ai-agent",
+    "knowledge-management",
+    "retrieval"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "better-sqlite3": "^12.8.0",
+    "cors": "^2.8.6",
+    "dotenv": "^16.3.0",
+    "express": "^4.18.2",
+    "fs-extra": "^11.3.4",
+    "mammoth": "^1.12.0",
+    "pdf-parse": "^2.4.5",
+    "reflect-metadata": "^0.2.1",
+    "rxjs": "^7.8.0",
+    "ts-node": "^10.9.2",
+    "tsconfig-paths": "^4.2.0",
+    "tslib": "^2.6.0",
+    "typescript": "^5.3.0",
+    "uuid": "^9.0.0",
+    "winston": "^3.11.0",
+    "winston-daily-rotate-file": "^5.0.0",
+    "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.21",
+    "@types/node": "^20.10.0",
+    "@types/uuid": "^9.0.0",
+    "@typescript-eslint/eslint-plugin": "^6.13.0",
+    "@typescript-eslint/parser": "^6.13.0",
+    "esbuild": "^0.27.4",
+    "eslint": "^8.55.0",
+    "javascript-obfuscator": "^5.4.1",
+    "ts-node-dev": "^2.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
